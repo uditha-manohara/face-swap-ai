@@ -1,9 +1,48 @@
-/* styles.css */
-
-.input {
-  @apply mt-1 w-full border border-gray-300 rounded-md p-2 shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400;
+.upload-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-
+.upload-box:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.upload-box.dragover {
+  border-color: #6366f1;
+}
+.upload-box.uploaded {
+  border-color: #22c55e;
+}
+.upload-text {
+  color: white;
+  font-size: 0.9rem;
+}
 .btn-primary {
-  @apply bg-indigo-600 text-white w-full py-2 rounded-md hover:bg-indigo-700 transition duration-300 font-semibold shadow;
+  background: #6366f1;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background: #4f46e5;
+}
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-left-color: #ffffff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

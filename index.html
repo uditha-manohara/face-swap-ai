@@ -6,47 +6,82 @@
     <title>AI Face Swap</title>
     <link href="styles.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: linear-gradient(-45deg, #d946ef, #8b5cf6, #0ea5e9, #ec4899);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+      }
+
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+    </style>
   </head>
-  <body class="bg-gradient-to-br from-indigo-50 to-purple-100 text-gray-900 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-8 sm:p-10">
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-center text-indigo-700 mb-4">🧠 AI Face Swap</h1>
-      <p class="text-center text-base text-gray-600 mb-8">Upload two images to swap faces using free Segmind API</p>
+  <body class="text-gray-900 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-2xl p-8 sm:p-10 border border-white/20">
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-center text-indigo-800 mb-4 flex items-center justify-center gap-2">
+        <img src="brain.png" class="w-8 h-8" alt="brain"/> AI Face Swap
+      </h1>
+      <p class="text-center text-base text-white mb-8">Upload two images to swap faces using free Segmind API</p>
 
       <div class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700">Source Face</label>
-          <input
-            type="file"
-            id="source"
-            accept="image/*"
-            class="input"
-          />
+        <div class="upload-box" ondrop="dropHandler(event, 'source')" ondragover="dragOverHandler(event)">
+          <label class="block text-sm font-medium mb-1 text-white">Source Face</label>
+          <input type="file" id="source" accept="image/*" class="input hidden" />
+          <p class="upload-text">Drag & Drop or Click to Upload</p>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700">Target Image</label>
-          <input
-            type="file"
-            id="target"
-            accept="image/*"
-            class="input"
-          />
+
+        <div class="upload-box" ondrop="dropHandler(event, 'target')" ondragover="dragOverHandler(event)">
+          <label class="block text-sm font-medium mb-1 text-white">Target Image</label>
+          <input type="file" id="target" accept="image/*" class="input hidden" />
+          <p class="upload-text">Drag & Drop or Click to Upload</p>
         </div>
-        <button
-          onclick="submit()"
-          class="btn-primary"
-        >
+
+        <button onclick="submit()" class="btn-primary">
           🔄 Swap Faces
         </button>
-        <p id="loading" class="text-center text-sm text-gray-500 hidden">Swapping... please wait</p>
+
+        <div id="loading" class="text-center hidden">
+          <div class="spinner"></div>
+          <p class="text-sm text-white mt-2">Swapping... please wait</p>
+        </div>
       </div>
 
       <div id="result" class="mt-8 hidden">
-        <h2 class="text-center text-lg font-semibold mb-3">Result</h2>
+        <h2 class="text-center text-lg font-semibold text-white mb-3">Result</h2>
         <img id="output" class="mx-auto rounded-xl shadow-md max-w-full" />
       </div>
     </div>
 
     <script>
+      const uploadBoxes = document.querySelectorAll(".upload-box");
+
+      uploadBoxes.forEach((box) => {
+        box.addEventListener("click", () => {
+          const input = box.querySelector("input");
+          input.click();
+        });
+        box.querySelector("input").addEventListener("change", () => {
+          box.classList.add("uploaded");
+        });
+      });
+
+      function dragOverHandler(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add("dragover");
+      }
+
+      function dropHandler(e, inputId) {
+        e.preventDefault();
+        const input = document.getElementById(inputId);
+        input.files = e.dataTransfer.files;
+        e.currentTarget.classList.remove("dragover");
+        e.currentTarget.classList.add("uploaded");
+      }
+
       async function submit() {
         const source = document.getElementById("source").files[0];
         const target = document.getElementById("target").files[0];
