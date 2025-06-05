@@ -1,0 +1,9 @@
+/* styles.css */
+
+.input {
+  @apply mt-1 w-full border border-gray-300 rounded-md p-2 shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400;
+}
+
+.btn-primary {
+  @apply bg-indigo-600 text-white w-full py-2 rounded-md hover:bg-indigo-700 transition duration-300 font-semibold shadow;
+}
