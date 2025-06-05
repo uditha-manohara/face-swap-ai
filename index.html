@@ -1,117 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Face Swap</title>
-    <link href="styles.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      body {
-        background: linear-gradient(-45deg, #d946ef, #8b5cf6, #0ea5e9, #ec4899);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Face Swap</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-400 to-purple-500">
 
-      @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-    </style>
-  </head>
-  <body class="text-gray-900 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-2xl p-8 sm:p-10 border border-white/20">
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-center text-indigo-800 mb-4 flex items-center justify-center gap-2">
-        <img src="brain.png" class="w-8 h-8" alt="brain"/> AI Face Swap
-      </h1>
-      <p class="text-center text-base text-white mb-8">Upload two images to swap faces using free Segmind API</p>
+  <div class="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-3xl w-[300px] text-center text-white shadow-xl">
+    <img src="https://cdn-icons-png.flaticon.com/512/3982/3982779.png" alt="AI icon" class="mx-auto w-10 mb-2"/>
+    <h1 class="text-2xl font-bold mb-1">AI Face Swap</h1>
+    <p class="text-sm mb-4">Upload two images to swap faces<br/>using free Segmind API</p>
 
-      <div class="space-y-6">
-        <div class="upload-box" ondrop="dropHandler(event, 'source')" ondragover="dragOverHandler(event)">
-          <label class="block text-sm font-medium mb-1 text-white">Source Face</label>
-          <input type="file" id="source" accept="image/*" class="input hidden" />
-          <p class="upload-text">Drag & Drop or Click to Upload</p>
-        </div>
+    <label class="block border-2 border-dashed border-green-400 rounded-md py-4 mb-4 cursor-pointer">
+      Source Face<br/><input type="file" id="source" accept="image/*" hidden>
+      <span id="sourceName" class="text-xs text-gray-200">Click to Upload</span>
+    </label>
 
-        <div class="upload-box" ondrop="dropHandler(event, 'target')" ondragover="dragOverHandler(event)">
-          <label class="block text-sm font-medium mb-1 text-white">Target Image</label>
-          <input type="file" id="target" accept="image/*" class="input hidden" />
-          <p class="upload-text">Drag & Drop or Click to Upload</p>
-        </div>
+    <label class="block border-2 border-dashed border-green-400 rounded-md py-4 mb-4 cursor-pointer">
+      Target Image<br/><input type="file" id="target" accept="image/*" hidden>
+      <span id="targetName" class="text-xs text-gray-200">Click to Upload</span>
+    </label>
 
-        <button onclick="submit()" class="btn-primary">
-          🔄 Swap Faces
-        </button>
+    <button id="swapBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg w-full font-bold flex items-center justify-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 17h-6a4 4 0 01-4-4V5M7 7h6a4 4 0 014 4v8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Swap Faces
+    </button>
 
-        <div id="loading" class="text-center hidden">
-          <div class="spinner"></div>
-          <p class="text-sm text-white mt-2">Swapping... please wait</p>
-        </div>
-      </div>
-
-      <div id="result" class="mt-8 hidden">
-        <h2 class="text-center text-lg font-semibold text-white mb-3">Result</h2>
-        <img id="output" class="mx-auto rounded-xl shadow-md max-w-full" />
-      </div>
+    <div id="status" class="mt-4 text-sm text-blue-200 hidden">Swapping... please wait</div>
+    <div id="result" class="mt-4 hidden">
+      <p class="text-sm font-bold mb-1">Result</p>
+      <img id="resultImg" class="mx-auto rounded-lg shadow-md" />
     </div>
+  </div>
 
-    <script>
-      const uploadBoxes = document.querySelectorAll(".upload-box");
+  <script>
+    const sourceInput = document.getElementById('source');
+    const targetInput = document.getElementById('target');
+    const swapBtn = document.getElementById('swapBtn');
+    const resultDiv = document.getElementById('result');
+    const resultImg = document.getElementById('resultImg');
+    const statusText = document.getElementById('status');
+    const sourceName = document.getElementById('sourceName');
+    const targetName = document.getElementById('targetName');
 
-      uploadBoxes.forEach((box) => {
-        box.addEventListener("click", () => {
-          const input = box.querySelector("input");
-          input.click();
-        });
-        box.querySelector("input").addEventListener("change", () => {
-          box.classList.add("uploaded");
-        });
+    sourceInput.addEventListener('change', () => {
+      sourceName.textContent = sourceInput.files[0]?.name || "Click to Upload";
+    });
+    targetInput.addEventListener('change', () => {
+      targetName.textContent = targetInput.files[0]?.name || "Click to Upload";
+    });
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
       });
+    }
 
-      function dragOverHandler(e) {
-        e.preventDefault();
-        e.currentTarget.classList.add("dragover");
+    swapBtn.addEventListener('click', async () => {
+      const sourceFile = sourceInput.files[0];
+      const targetFile = targetInput.files[0];
+
+      if (!sourceFile || !targetFile) {
+        alert("Please upload both images.");
+        return;
       }
 
-      function dropHandler(e, inputId) {
-        e.preventDefault();
-        const input = document.getElementById(inputId);
-        input.files = e.dataTransfer.files;
-        e.currentTarget.classList.remove("dragover");
-        e.currentTarget.classList.add("uploaded");
-      }
+      statusText.classList.remove("hidden");
+      resultDiv.classList.add("hidden");
+      swapBtn.disabled = true;
 
-      async function submit() {
-        const source = document.getElementById("source").files[0];
-        const target = document.getElementById("target").files[0];
-        const output = document.getElementById("output");
-        const result = document.getElementById("result");
-        const loading = document.getElementById("loading");
+      try {
+        const sourceB64 = await toBase64(sourceFile);
+        const targetB64 = await toBase64(targetFile);
 
-        if (!source || !target) return alert("Please upload both images.");
+        const res = await fetch("https://api.segmind.com/v1/inference/faceswap-v2", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": "SG_b9c989059098a25b" // Replace with your actual key
+  },
+  body: JSON.stringify({
+    source_image: sourceB64,
+    target_image: targetB64
+  })
+});
 
-        const formData = new FormData();
-        formData.append("source", source);
-        formData.append("target", target);
 
-        loading.classList.remove("hidden");
-        result.classList.add("hidden");
 
-        try {
-          const response = await fetch("https://face-swap-aigithubio-production.up.railway.app/swap", {
-            method: "POST",
-            body: formData,
-          });
-          const blob = await response.blob();
-          output.src = URL.createObjectURL(blob);
-          result.classList.remove("hidden");
-        } catch (err) {
-          alert("Something went wrong. Try again later.");
+
+        const data = await res.json();
+
+        if (data.status === "success" && data.output_image) {
+          resultImg.src = `data:image/jpeg;base64,${data.output_image}`;
+          resultDiv.classList.remove("hidden");
+        } else {
+          alert("Face swap failed. Try clearer face images.");
+          console.error("Error response:", data);
         }
-
-        loading.classList.add("hidden");
+      } catch (err) {
+        alert("Error: " + err.message);
+        console.error(err);
+      } finally {
+        statusText.classList.add("hidden");
+        swapBtn.disabled = false;
       }
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
